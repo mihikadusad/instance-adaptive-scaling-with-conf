@@ -48,7 +48,7 @@ def init_llm(
     dtype: str = "auto",
     tensor_parallel_size: int = None,
     max_model_len: int = 4096,
-    prompt_logprobs: int = 20,
+    max_logprobs: int = 20,
 ) -> LLM:
     """
     Initialize the vLLM model with given parameters.
@@ -80,7 +80,7 @@ def init_llm(
         enable_prefix_caching=enable_prefix_caching,
         enable_chunked_prefill=enable_chunked_prefill,
         dtype=dtype,
-        prompt_logprobs=prompt_logprobs,
+        max_logprobs=max_logprobs,
     )
     return llm
 
@@ -101,7 +101,7 @@ def load_llm_with_retries(args, max_trials: int = 5, delay: int = 1) -> LLM:
                 enable_prefix_caching=args.enable_prefix_caching,
                 enable_chunked_prefill=args.enable_chunked_prefill,
                 dtype=args.dtype,
-                prompt_logprobs=args.prompt_logprobs,
+                max_logprobs=20,
             )
             return llm
         except Exception as exc:
@@ -161,6 +161,7 @@ def get_sampling_params(
         n_generations: int,
         temperature: float,
         max_tokens: int,
+        prompt_logprobs: int = 20,
 ) -> SamplingParams:
     """
     Build a SamplingParams object with Qwen-specific or generic stop tokens,
@@ -176,6 +177,7 @@ def get_sampling_params(
         temperature=temperature,
         max_tokens=max_tokens,
         stop_token_ids=stop_ids,
+        prompt_logprobs=20,
     )
     return sampling_params
 

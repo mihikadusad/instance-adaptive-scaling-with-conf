@@ -209,6 +209,7 @@ def main():
         temperature=args.temperature,
         max_tokens=args.max_tokens,  # 1
         # make sure get_sampling_params passes prompt_logprobs=20 through to vLLM
+        prompt_logprobs=20,
     )
 
     # 4. Select the prompt format
