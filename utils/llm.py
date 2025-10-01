@@ -48,11 +48,13 @@ def init_llm(
     dtype: str = "auto",
     tensor_parallel_size: int = None,
     max_model_len: int = 4096,
+    prompt_logprobs: int = 20,
 ) -> LLM:
     """
     Initialize the vLLM model with given parameters.
     Automatically logs in to HF Hub.
     Automatically detects and configures for V100 if present.
+    We also added the prompt_logprobs parameter.
     """
     # Hugging Face login
     login_hf(hf_token)
@@ -78,6 +80,7 @@ def init_llm(
         enable_prefix_caching=enable_prefix_caching,
         enable_chunked_prefill=enable_chunked_prefill,
         dtype=dtype,
+        prompt_logprobs=prompt_logprobs,
     )
     return llm
 
@@ -98,6 +101,7 @@ def load_llm_with_retries(args, max_trials: int = 5, delay: int = 1) -> LLM:
                 enable_prefix_caching=args.enable_prefix_caching,
                 enable_chunked_prefill=args.enable_chunked_prefill,
                 dtype=args.dtype,
+                prompt_logprobs=args.prompt_logprobs,
             )
             return llm
         except Exception as exc:
