@@ -8,6 +8,7 @@ import argparse
 import json
 import numpy as np
 import matplotlib.pyplot as plt
+import pickle
 
 from utils.data import get_dataset
 from utils.llm import (
@@ -16,6 +17,32 @@ from utils.llm import (
     get_sampling_params,
     prioritize_boxed
 )
+
+def save_json_to_pickle(json_file_path, pickle_file_path):
+    """
+    Loads data from a JSON file and saves it to a Pickle file.
+
+    Args:
+        json_file_path (str): The path to the input JSON file.
+        pickle_file_path (str): The path to the output Pickle file.
+    """
+    try:
+        # Load data from JSON file
+        with open(json_file_path, 'r') as f:
+            data = json.load(f)
+
+        # Save data to Pickle file
+        with open(pickle_file_path, 'wb') as f:
+            pickle.dump(data, f)
+
+        print(f"Data successfully loaded from '{json_file_path}' and saved to '{pickle_file_path}'")
+
+    except FileNotFoundError:
+        print(f"Error: File not found at '{json_file_path}'")
+    except json.JSONDecodeError:
+        print(f"Error: Invalid JSON format in '{json_file_path}'")
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")
 
 def parse_args():
     """Parse command-line arguments."""
@@ -222,7 +249,8 @@ def main():
         formatted_prompts.append(user_prompt)
         if args.debug and len(formatted_prompts) == 3:
             break
-
+    
+    print('First formatted prompt: ', formatted_prompts[0])
     # 6. Inference
     results = llm.generate(formatted_prompts, sampling_params)
 
@@ -241,6 +269,9 @@ def main():
         # Extract prompt confidence traces
         conf_trace = []
         prompt_lp_list = getattr(res, "prompt_logprobs", None)
+        print(len(prompt_lp_list))
+        # print(len(prompt_lp_list[0]))
+        # print(prompt_lp_list)
         if prompt_lp_list is not None:
             for pos_entry in prompt_lp_list:
                 conf_trace.append(_extract_topk_logprobs_list(pos_entry, k=20))
@@ -278,6 +309,7 @@ def main():
         json.dump(output_data, f, ensure_ascii=False, indent=2)
 
     print(f"Results saved to {out_path}")
+    save_json_to_pickle(out_path, 'my_new_data_file.pkl')
 
     # 9. Plot aggregation: average ENTROPY vs prompt position (over all prompts)
     #    Entropy is computed from the truncated top-20 distribution at each position.
