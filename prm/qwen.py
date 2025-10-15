@@ -89,7 +89,7 @@ class QwenPRM(RewardModel):
                         return_tensors="pt"
                     )[..., :self.MAX_TOKENS].to(self.model.device)
 
-                    outputs = self.model(input_ids=input_ids, use_cache=True)
+                    outputs = self.model(input_ids=input_ids, use_cache=False)
                     # outputs[0] should be logits: (batch_size=1, seq_len, num_labels=2)
 
                     token_masks = (input_ids == self.step_token_id)  # shape: [1, seq_len], True at step boundaries
